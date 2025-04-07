@@ -36,7 +36,7 @@ This command opens RViz to visualize the quadruped robot leg and interactively c
 ### Inverse Kinematics
 The **ik** package contains the inverse kinematics implementation for the quadruped leg using analytical equations.
 
-###For teleoperating the Robot-Dog hardware wirelessly run the following commands in different terminals after sourcing the workspace:
+### For teleoperating the Robot-Dog hardware wirelessly run the following commands in different terminals after sourcing the workspace:
 ```
 ros2 launch quadruped_description hardware.launch.py
 ros2 run quadruped_description traj_bezier
