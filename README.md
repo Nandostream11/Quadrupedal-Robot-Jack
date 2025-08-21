@@ -50,6 +50,7 @@ Ensure that you have the required dependencies installed:
 sudo apt-get install ros-humble-gazebo-ros-pkgs
 sudo apt-get install ros-humble-rviz2
 ```
+## [Quad walking in Gazebo Harmonic](https://youtu.be/8s2_6TzHoGw?si=2RRBJ7TDqguP4eST)
 
 ## Contributing
 Feel free to fork this repository and contribute by submitting pull requests.
