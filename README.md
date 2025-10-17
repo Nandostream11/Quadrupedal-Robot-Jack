@@ -31,7 +31,7 @@ for main branch :
 ros2 launch quadruped_description gazebo.launch.py
 
 # Run custom IK service
-ros2 run ik ik
+ros2 run ik ik_service
 
 # Run trajectory planning and execution
 ros2 run quadruped_description traj_bezier

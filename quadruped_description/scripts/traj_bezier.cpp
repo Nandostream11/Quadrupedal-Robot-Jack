@@ -34,14 +34,14 @@ public:
         // timer_ = this->create_wall_timer(
         //     std::chrono::seconds(1), std::bind(&TrajectoryPublisher::publish_trajectory, this));
 
-        double d = 0.12;
-        double h = 0.06;
-        double theta = 0.0;  // Example angle in radians (45 degrees)
+        d = 0.12;
+        h = 0.06;
+        theta = 0.0;  // Example angle in radians (45 degrees)
         Eigen::Vector3d P3(0.025, -0.054, -0.25);
         // Eigen::Vector3d P3(0.15, -0.054, 0.03);
         B = trajplanner(d, h, theta, P3); 
 
-        for (int i =0; i<B.size();i++){
+        for (size_t i =0; i<B.size();i++){
 
             init(B,i);
             cout<<i<<endl;
@@ -63,14 +63,17 @@ public:
             transformation.layout.dim[0].size = 3;      // Size of the dimension
             transformation.layout.dim[0].stride = 1;     // Stride for the dimension
             transformation.layout.data_offset = 0;  
-        transformation.data = {-B[current_index][2], B[current_index][1], B[current_index][0]};
-
+        // Float32MultiArray::data is float; cast explicitly to avoid narrowing warnings.
+        transformation.data = {
+            static_cast<float>(-B[current_index][2]), 
+            static_cast<float>(B[current_index][1]), 
+            static_cast<float>(B[current_index][0])     
+        };
         auto request = std::make_shared<custom_service::srv::IkSw::Request>();
         request->transformation = transformation;
         auto future = client_->async_send_request(request);
 
-        if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), future) ==
-            rclcpp::FutureReturnCode::SUCCESS)
+        if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), future) == rclcpp::FutureReturnCode::SUCCESS)
         {
             RCLCPP_INFO(this->get_logger(), "Result: ");
             auto res = future.get()->jangles;
@@ -83,7 +86,7 @@ public:
             theta_vec.push_back(ang);
             cout<<"ang "<<ang[0]<<" "<<ang[1]<<" "<<ang[2]<<endl;
 
-            // pub_for moving
+            //      // pub_for moving
             // for ( int i=0; i<theta_vec.size();i++){
             //     auto joint_traj = trajectory_msgs::msg::JointTrajectory();
             //     joint_traj.header.stamp = this->get_clock()->now();
@@ -118,13 +121,14 @@ public:
             auto point = trajectory_msgs::msg::JointTrajectoryPoint();
             point.positions = {ang[0], ang[1], ang[2]};  // Target joint positions
             
-            // Set the duration to 1 second
+            // Set the duration to 0.2 second
             builtin_interfaces::msg::Duration duration;
             duration.sec = 0;         // Full seconds part
-            duration.nanosec = 200000000;  // 0.5 seconds = 500 million nanoseconds
+            duration.nanosec = 200000000;  // 0.2 seconds = 200 million nanoseconds
             point.time_from_start = duration;
             
             msg.points.push_back(point);
+
             // ******************* marker code ******************
             visualization_msgs::msg::MarkerArray marker_array;
             std::vector<double> points = { -B[current_index][2], B[current_index][1], B[current_index][0]};
@@ -169,9 +173,9 @@ public:
         }
     }
 
-    void pub(std::vector<std::vector<double>> theta_vec){
-        
-    }
+    // void pub(std::vector<std::vector<double>> theta_vec){  
+    //     (void)theta_vec; // silence unused-parameter warning for now
+    // }
 
     Matrix transposeMatrix(const Matrix& mat) {
         Matrix transposed(mat[0].size(), std::vector<double>(mat.size()));

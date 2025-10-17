@@ -7,6 +7,7 @@
 #include "custom_service/srv/ik_sw.hpp"
 #include <memory>
 
+
 #define PI 3.14159265358979323846
 
 using namespace std;
@@ -233,15 +234,15 @@ private:
     //    ans1 =  multiplyMatrices(mat,transposed);
         ans1 = mat;
         Eigen::MatrixXd ans(ans1.size(),ans1.size());
-        for(int i =0; i<ans1.size();i++){
-            for(int j=0;j<ans1.size();j++){
+        for(size_t i =0; i<ans1.size();i++){
+            for(size_t j=0;j<ans1.size();j++){
                 ans(i,j)=ans1[i][j];
             }
         }
         // Code for pseudo-inverse calculation 
         Eigen::MatrixXd inverse = ans.inverse();
-        for(int i =0; i<ans2.size();i++){
-            for(int j=0;j<ans2.size();j++){
+        for(size_t i =0; i<ans2.size();i++){
+            for(size_t j=0;j<ans2.size();j++){
                 ans1[i][j]=inverse(i,j);
             }
         }
@@ -264,7 +265,11 @@ private:
         Joint_Pose j = Inverse_position_kinematics(loc);
         // cout<<j.Theta_1<<" "<<j.Theta_2<<" "<<j.Theta_3<<endl;
         std_msgs::msg::Float32MultiArray jpose;
-        jpose.data = {j.Theta_1, j.Theta_2, j.Theta_3};
+        // avoid narrowing by casting doubles to float explicitly
+        jpose.data.clear();
+        jpose.data.push_back(static_cast<float>(j.Theta_1));
+        jpose.data.push_back(static_cast<float>(j.Theta_2));
+        jpose.data.push_back(static_cast<float>(j.Theta_3));
         response->jangles = jpose;
 
     }
@@ -276,13 +281,11 @@ private:
         double a2 = 0.154;
         double a3 = 0.125;
 
-        double alpha, beta = 0.0;
+        // double alpha, beta = 0.0;       //unused
         double reach = a2 + a3;
 
-
-
-        double th11,th1 =0;
-        double th13,th14 =0;
+        double th1 =0;
+        // double th11,th13,th14 =0;
         double th2 =0, th21=0, th22=0;
         double th3 =0, th31 = 0, th32=0;
         double max_it1, max_it2 =0;
@@ -311,13 +314,11 @@ private:
         // cout<<"th32 "<<th32<<endl;
 
         // ************************th21*********************
-        alpha = cos(th31);
         double phi = atan((a3* sin(th31))/(a2+(a3*cos(th31))));
         th21 = asin((p[2] - d1)/sqrt((a2+(a3*cos(th31)))*(a2+(a3*cos(th31))) + ((a3*sin(th31))*(a3*sin(th31))) )) - phi;
         // cout<<"th21 "<<th21<<endl;
 
         // ************************th22*********************
-        alpha = cos(th32);
         phi = atan((a3* sin(th32))/(a2+(a3*cos(th32))));
         th22 = asin((p[2] - d1)/sqrt((a2+(a3*cos(th32)))*(a2+(a3*cos(th32))) + ((a3*sin(th32))*(a3*sin(th32))) )) - phi;
         // cout<<"th22 "<<th22<<endl;
