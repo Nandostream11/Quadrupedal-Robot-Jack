@@ -1,13 +1,12 @@
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 import os
 import xacro
 from ament_index_python.packages import get_package_share_directory
-from launch.actions import DeclareLaunchArgument
 
 
 
@@ -21,6 +20,10 @@ def generate_launch_description():
     # Process the xacro file to get the robot description
     robot_description_config = xacro.process_file(xacro_file)
     robot_urdf = robot_description_config.toxml()
+
+    # Expand ROS1-style $(find ...) path used inside the ros2_control.xacro so gazebo_ros2_control gets a real path
+    controllers_yaml = os.path.join(share_dir, 'config', 'my_controllers.yaml')
+    robot_urdf = robot_urdf.replace('$(find quadruped_description)/config/my_controllers.yaml', controllers_yaml)
 
     # Create the robot_state_publisher node with the processed robot description
     robot_state_publisher_node = Node(
@@ -67,16 +70,24 @@ def generate_launch_description():
         output='screen'
     )
 
-    arm_cont_spawner = Node(
+    arm_cont_spawner = TimerAction(
+        period=5.0,
+        actions=[Node(
         package="controller_manager",
         executable="spawner",
         arguments=["arm_cont"],
+        output="screen",
+    )]
     )
 
-    joint_broad_spawner = Node(
+    joint_broad_spawner = TimerAction(
+        period=5.0,
+        actions=[Node(
         package="controller_manager",
         executable="spawner",
         arguments=["joint_broad"],
+        output="screen",
+    )]
     )
 
     return LaunchDescription([

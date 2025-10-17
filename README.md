@@ -21,7 +21,7 @@ This repository contains ROS 2 packages for simulating and controlling a quadru
 cd ~/ros2_ws/src
 git clone https://github.com/DJIITBH/Quadruped_ROS2.git
 cd ~/ros2_ws
-colcon build --packages-select quad_description ik
+colcon build --packages-select quad_description ik custom_service
 source install/setup.bash
 ```
 for main branch :
