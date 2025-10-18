@@ -134,7 +134,7 @@ public:
             std::vector<double> points = { -B[current_index][2], B[current_index][1], B[current_index][0]};
 
             visualization_msgs::msg::Marker marker;
-            marker.header.frame_id = "dh_ref_base";  // Change to "odom" or "base_link" if needed
+            marker.header.frame_id = "base_link";  // dh_ref_base Changed to "odom" or "base_link" if needed
             marker.header.stamp = this->now();
             marker.ns = "marker_points";
             marker.id = current_index;

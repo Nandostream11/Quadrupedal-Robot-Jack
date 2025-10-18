@@ -47,9 +47,12 @@ install(
 add_executable(traj_bezier scripts/traj_bezier.cpp) 
 ament_target_dependencies(traj_bezier rclcpp std_msgs custom_service trajectory_msgs builtin_interfaces geometry_msgs visualization_msgs)
 
+add_executable(traj_safe scripts/traj_safe.cpp) 
+ament_target_dependencies(traj_safe rclcpp std_msgs custom_service trajectory_msgs builtin_interfaces geometry_msgs visualization_msgs)
 
 install(TARGETS
 traj_bezier
+traj_safe
   DESTINATION lib/${PROJECT_NAME}
 )
 

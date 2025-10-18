@@ -33,11 +33,12 @@ ros2 launch quadruped_description gazebo.launch.py
 # Run custom IK service
 ros2 run ik ik_service
 
+# Visualize in RViz with joint GUI
+ros2 launch quadruped_description display.launch.py
+
 # Run trajectory planning and execution
 ros2 run quadruped_description traj_bezier
 
-# Visualize in RViz with joint GUI
-ros2 launch quadruped_description display.launch.py
 ```
 For full_quad branch :
 ```bash
@@ -47,9 +48,9 @@ source install/setup.bash
 ```
 ```bash
 ros2 launch quadruped_description gazebo.launch.py
-ros2 run ik ik
-ros2 run quadruped_description traj_bezier
+ros2 run ik ik_service
 ros2 launch quadruped_description display.launch.py
+ros2 run quadruped_description traj_bezier
 ```
 🤖 Hardware Integration (quad_hardware branch)
 This branch deploys the robot on actual hardware (e.g., Jetson Nano, Raspberry Pi).

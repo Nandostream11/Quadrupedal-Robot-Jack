@@ -47,42 +47,19 @@ Visualization Manager:
         Z: 0
       Plane: XY
       Plane Cell Count: 10
-      Reference Frame: <Fixed Frame>
+      Reference Frame: base_link
       Value: true
     - Class: rviz_default_plugins/TF
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: false
-        base_link:
-          Value: false
-        dh_ref_base:
-          Value: true
-        leg_3_v1_1_fixed_ee:
-          Value: false
-        link1_1:
-          Value: false
-        link2_v1_1:
-          Value: false
-        link3_1:
-          Value: false
-        world:
-          Value: false
+        # enable all frames to avoid missing-frame errors (dh_ref_base removed)
+        All Enabled: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: false
-      Tree:
-        world:
-          base_link:
-            link1_1:
-              dh_ref_base:
-                {}
-              link2_v1_1:
-                link3_1:
-                  leg_3_v1_1_fixed_ee:
-                    {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -108,10 +85,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        leg_3_v1_1_fixed_ee:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         link1_1:
           Alpha: 1
           Show Axes: false
@@ -127,7 +100,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        world:
+        leg_3_v1_1_fixed_ee:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -168,7 +141,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: dh_ref_base
+    Fixed Frame: base_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -227,7 +200,7 @@ Visualization Manager:
       Name: Current View
       Near Clip Distance: 0.009999999776482582
       Pitch: -0.03460196033120155
-      Target Frame: <Fixed Frame>
+      Target Frame: base_link
       Value: Orbit (rviz)
       Yaw: 4.498586654663086
     Saved: ~

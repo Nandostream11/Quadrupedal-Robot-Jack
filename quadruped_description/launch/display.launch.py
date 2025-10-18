@@ -16,12 +16,20 @@ def generate_launch_description():
     robot_urdf = robot_description_config.toxml()
 
     rviz_config_file = os.path.join(share_dir, 'config', 'display.rviz')
+    # optional alternative config that has a MarkerArray display configured:
+    marker_rviz_file = os.path.join(share_dir, 'config', 'marker.rviz')
 
+    # Add use_sim_time arg so nodes use Gazebo clock
+    use_sim_time_arg = DeclareLaunchArgument(
+        name='use_sim_time',
+        default_value='True'
+    )
+    use_sim_time = LaunchConfiguration('use_sim_time')
+    
     gui_arg = DeclareLaunchArgument(
         name='gui',
         default_value='True'
     )
-
     show_gui = LaunchConfiguration('gui')
 
         # Define initial pose parameters
@@ -56,6 +64,7 @@ def generate_launch_description():
         name='robot_state_publisher',
         parameters=[
             {'robot_description': robot_urdf, 
+            'use_sim_time': use_sim_time,
             'initial_x': LaunchConfiguration('initial_x'),  # Set initial x position
             'initial_y': LaunchConfiguration('initial_y'),  # Set initial y position
             'initial_z': LaunchConfiguration('initial_z'),  # Set initial z position
@@ -84,11 +93,12 @@ def generate_launch_description():
         package='rviz2',
         executable='rviz2',
         name='rviz2',
-        arguments=['-d', rviz_config_file],
+        arguments=['-d', marker_rviz_file],     # or marker_rviz_file
         output='screen'
     )
 
     return LaunchDescription([
+        use_sim_time_arg,
         gui_arg,
         initial_x,
         initial_y,
