@@ -42,7 +42,7 @@ namespace bumperbot_controller
 
         }
         position_commands_.reserve(info_.joints.size());
-        RCLCPP_INFO(rclcpp::get_logger("robotInterface"), "joint_size: %d", info_.joints.size());
+        RCLCPP_INFO(rclcpp::get_logger("robotInterface"), "joint_size: %ld", info_.joints.size());
         position_states_.reserve(info_.joints.size());
         prev_position_commands_.reserve(info_.joints.size());
 

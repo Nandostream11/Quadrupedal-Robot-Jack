@@ -5,8 +5,8 @@ username - qpi
 
 *RPI*
 1-> sudo apt install openssh-server
-2-> sudo systemctl enable ssh
-3-> sudo systemcytl start // to configure to ssh mode automatically as rpi starts
+2-> sudo systemctl enable ssh   // to configure to ssh mode automatically as rpi starts
+3-> sudo systemctl start 
 4-> sudo systemctl status ssh  // to verify ssh is running or not
 5-> hostename - I
 
