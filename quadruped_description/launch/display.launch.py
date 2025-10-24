@@ -26,37 +26,44 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('use_sim_time')
     
+        # --- static transform to align RViz orientation ---
+    static_tf_node = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='static_tf_world_to_base',
+        arguments=['0', '0', '0', '1.57', '0', '0', 'world', 'base_link']
+    )
     gui_arg = DeclareLaunchArgument(
         name='gui',
         default_value='True'
     )
-    show_gui = LaunchConfiguration('gui')
+    # show_gui = LaunchConfiguration('gui')
 
-        # Define initial pose parameters
-    initial_x = DeclareLaunchArgument(
-        name='initial_x',
-        default_value='0.0'
-    )
-    initial_y = DeclareLaunchArgument(
-        name='initial_y',
-        default_value='0.0'
-    )
-    initial_z = DeclareLaunchArgument(
-        name='initial_z',
-        default_value='10.0'
-    )
-    initial_roll = DeclareLaunchArgument(
-        name='initial_roll',
-        default_value='1.57'
-    )
-    initial_pitch = DeclareLaunchArgument(
-        name='initial_pitch',
-        default_value='0.0'
-    )
-    initial_yaw = DeclareLaunchArgument(
-        name='initial_yaw',
-        default_value='0.0'
-    )
+    #     # Define initial pose parameters
+    # initial_x = DeclareLaunchArgument(
+    #     name='initial_x',
+    #     default_value='0.0'
+    # )
+    # initial_y = DeclareLaunchArgument(
+    #     name='initial_y',
+    #     default_value='10.0'
+    # )
+    # initial_z = DeclareLaunchArgument(
+    #     name='initial_z',
+    #     default_value='10.0'
+    # )
+    # initial_roll = DeclareLaunchArgument(
+    #     name='initial_roll',
+    #     default_value='1.57'
+    # )
+    # initial_pitch = DeclareLaunchArgument(
+    #     name='initial_pitch',
+    #     default_value='0.0'
+    # )
+    # initial_yaw = DeclareLaunchArgument(
+    #     name='initial_yaw',
+    #     default_value='0.0'
+    # )
 
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
@@ -64,50 +71,52 @@ def generate_launch_description():
         name='robot_state_publisher',
         parameters=[
             {'robot_description': robot_urdf, 
-            'use_sim_time': use_sim_time,
-            'initial_x': LaunchConfiguration('initial_x'),  # Set initial x position
-            'initial_y': LaunchConfiguration('initial_y'),  # Set initial y position
-            'initial_z': LaunchConfiguration('initial_z'),  # Set initial z position
-            'initial_roll': LaunchConfiguration('initial_roll'),  # Set initial roll angle
-            'initial_pitch': LaunchConfiguration('initial_pitch'),  # Set initial pitch angle
-            'initial_yaw': LaunchConfiguration('initial_yaw')}
-            
+            'use_sim_time': use_sim_time
+            # 'initial_x': LaunchConfiguration('initial_x'),  # Set initial x position
+            # 'initial_y': LaunchConfiguration('initial_y'),  # Set initial y position
+            # 'initial_z': LaunchConfiguration('initial_z'),  # Set initial z position
+            # 'initial_roll': LaunchConfiguration('initial_roll'),  # Set initial roll angle
+            # 'initial_pitch': LaunchConfiguration('initial_pitch'),  # Set initial pitch angle
+            # 'initial_yaw': LaunchConfiguration('initial_yaw')
+            }
         ]
     )
+# # Only use joint_state_publisher if not using Gazebo
+# # For simulation, Gazebo publishes joint_states
+    # joint_state_publisher_node = Node(
+    #     condition=UnlessCondition(show_gui),
+    #     package='joint_state_publisher',
+    #     executable='joint_state_publisher',
+    #     name='joint_state_publisher'
+    # )
 
-    joint_state_publisher_node = Node(
-        condition=UnlessCondition(show_gui),
-        package='joint_state_publisher',
-        executable='joint_state_publisher',
-        name='joint_state_publisher'
-    )
-
-    joint_state_publisher_gui_node = Node(
-        condition=IfCondition(show_gui),
-        package='joint_state_publisher_gui',
-        executable='joint_state_publisher_gui',
-        name='joint_state_publisher_gui'
-    )
+    # joint_state_publisher_gui_node = Node(
+    #     condition=IfCondition(show_gui),
+    #     package='joint_state_publisher_gui',
+    #     executable='joint_state_publisher_gui',
+    #     name='joint_state_publisher_gui'
+    # )
 
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
         name='rviz2',
-        arguments=['-d', marker_rviz_file],     # or marker_rviz_file
+        arguments=['-d', marker_rviz_file],     # or rviz_config_file
         output='screen'
     )
 
     return LaunchDescription([
         use_sim_time_arg,
         gui_arg,
-        initial_x,
-        initial_y,
-        initial_z,
-        initial_roll,
-        initial_pitch,
-        initial_yaw,
+        static_tf_node,
+        # initial_x,
+        # initial_y,
+        # initial_z,
+        # initial_roll,
+        # initial_pitch,
+        # initial_yaw,
         robot_state_publisher_node,
-        joint_state_publisher_node,
-        joint_state_publisher_gui_node,
+        # joint_state_publisher_node,
+        # joint_state_publisher_gui_node,
         rviz_node
     ])

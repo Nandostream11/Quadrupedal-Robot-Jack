@@ -134,16 +134,18 @@ public:
             std::vector<double> points = { -B[current_index][2], B[current_index][1], B[current_index][0]};
 
             visualization_msgs::msg::Marker marker;
-            marker.header.frame_id = "base_link";  // dh_ref_base Changed to "odom" or "base_link" if needed
+            marker.header.frame_id = "world";  // dh_ref_base Changed to "odom" or "base_link" if needed
             marker.header.stamp = this->now();
             marker.ns = "marker_points";
             marker.id = current_index;
             marker.type = visualization_msgs::msg::Marker::SPHERE;
             marker.action = visualization_msgs::msg::Marker::ADD;
 
-            marker.pose.position.x = points[0];
-            marker.pose.position.y = points[1];
-            marker.pose.position.z = points[2];
+            marker.pose.position.x = -B[current_index][0]+0.024;
+            marker.pose.position.y = B[current_index][1]+0.16;
+            marker.pose.position.z = B[current_index][2]+0.99;
+
+            // marker.pose.orientation.w=
 
             marker.scale.x = 0.009;  // Marker size
             marker.scale.y = 0.009;
