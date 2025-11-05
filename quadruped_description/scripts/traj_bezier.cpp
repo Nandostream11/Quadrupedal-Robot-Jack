@@ -78,6 +78,7 @@ struct Joint_Pose
         client_ = this->create_client<custom_service::srv::IkSw>("ik_service");
         publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("visualization_marker_array", 10);
         odom_pub = create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
+        odom_timer = this->create_wall_timer(20ms,std::bind(&TrajBezier::odometry,this));
 
         // timer_ = this->create_wall_timer(
         //     std::chrono::seconds(1), std::bind(&TrajectoryPublisher::publish_trajectory, this));
@@ -121,7 +122,7 @@ struct Joint_Pose
         //     is_initial=0;
         //     grounded();
         // }
-        odometry(robot_vel);
+        // odometry(robot_vel);
         teleop(robot_vel);        
 
     }
@@ -713,8 +714,14 @@ struct Joint_Pose
 
         RCLCPP_INFO(this->get_logger(), "teleop_called..");
         // Eigen::Vector3d P3(0.025, -0.054, -0.25);
-        Eigen::Vector3d P3r(-0.015, -0.054, -0.23);
-        Eigen::Vector3d P3l(0.06, -0.054, -0.23);
+        // ***
+        // Eigen::Vector3d P3r(0.01, -0.054, -0.23);
+        // Eigen::Vector3d P3l(0.10, -0.054, -0.23);
+        //  ***
+        Eigen::Vector3d P3rf(0.015, -0.054, -0.20);
+        Eigen::Vector3d P3rb(-0.04, -0.054, -0.20);
+        Eigen::Vector3d P3lb(0.09, -0.054, -0.20);
+        Eigen::Vector3d P3lf(0.055, -0.054, -0.20);
         std::vector<double> tip_vel = vel_ik(body_vel); //get tip velocities and directions {thetas!}
         //find max tip velocity!
         double max_vel = 0;
@@ -755,10 +762,10 @@ struct Joint_Pose
             d_lf = leg_bezier[0];
         }
 
-        B_rf = trajplanner(d_rf, h, tip_vel[4], P3r, beta_u, num_points);
-        B_rb = trajplanner(d_rb, h, tip_vel[5], P3r, beta_u, num_points);
-        B_lb = trajplanner(d_lb, h, tip_vel[6], P3l, beta_u, num_points);
-        B_lf = trajplanner(d_lf, h, tip_vel[7], P3l, beta_u, num_points);
+        B_rf = trajplanner(d_rf, 0.03, tip_vel[4]+0.03, P3rf, beta_u, num_points);
+        B_rb = trajplanner(d_rb, 0.03, tip_vel[5]+0.03, P3rb, beta_u, num_points);
+        B_lb = trajplanner(d_lb, 0.03, tip_vel[6], P3lb, beta_u, num_points);
+        B_lf = trajplanner(d_lf, 0.03, tip_vel[7], P3lf, beta_u, num_points);
 
         RCLCPP_INFO(this->get_logger(), "Frequency : %f ", leg_bezier[1]);
         T = 1/leg_bezier[1]; //time period from frequency!
@@ -912,10 +919,10 @@ struct Joint_Pose
         rclcpp::sleep_for(std::chrono::milliseconds(static_cast<int>(time_to_wait)));
     }
 
-    void odometry(std::vector<double> body_vel){
+    void odometry(){
         double max_vel = 0;
         int index=0;
-        std::vector<double> tip_vel = vel_ik(body_vel); //get the tip velocities and omega
+        std::vector<double> tip_vel = vel_ik(robot_vel); //get the tip velocities and omega
         for (int i=0;i<4;i++){
             if(max_vel<tip_vel[i]){
                 max_vel = tip_vel[i];
@@ -951,15 +958,15 @@ struct Joint_Pose
             // i know its step length and freq
             d_lf = leg_bezier[0];
         }
-        double theta = (tip_vel[8])*(1/leg_bezier[1]); //theta of robot!
+        double theta = theta + (tip_vel[8])*(1/leg_bezier[1]); //theta of robot!
         double d1 = d_rf*cos(tip_vel[4]);
         double d2 = d_lf*cos(tip_vel[7]);
         double d3 = d_rf*sin(tip_vel[4]);
         double d4 = d_rb*sin(tip_vel[5]);
         double dx = (d1+d2)/2;
         double dy = (d3+d4)/2;
-        odom_x = odom_x + dx*cos(theta) - dy*sin(theta);
-        odom_y = odom_y + dx*sin(theta) + dy*cos(theta);
+        odom_x = (odom_x - (dx+dx/3)*cos(theta) + (dy+dy/3)*sin(theta)) ;       // error in odom_x due to 1/3*dx/dt of joystick
+        odom_y = (odom_y + (dx)*sin(theta) + (dy)*cos(theta));                  // error in odom_x due to dy/dt of joystick
         //declaring odom message and transforms..
         nav_msgs::msg::Odometry odom_msg;
         std::unique_ptr<tf2_ros::TransformBroadcaster> transform_broadcaster;
@@ -1384,6 +1391,8 @@ private:
     rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr joint_traj_pub_lb;
     rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr joint_traj_pub_rf;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr vel_sub;
+    rclcpp::TimerBase::SharedPtr odom_timer;
+
 
     rclcpp::Client<custom_service::srv::IkSw>::SharedPtr client_;
     rclcpp::TimerBase::SharedPtr timer_;
@@ -1396,7 +1405,7 @@ private:
     std::vector<std::array<double, 3>> B_lb;
     std::vector<std::array<double, 3>> B_lf;
 
-    std::vector<double> robot_vel;
+    std::vector<double> robot_vel = {0.0, 0.0, 0.0};
     int is_initial = 0;
 
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr publisher_;

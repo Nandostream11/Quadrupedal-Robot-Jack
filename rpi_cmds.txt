@@ -12,5 +12,26 @@ username - qpi
 
 *PC*
 1-> ssh qpi@10.50.15.145
+or,
 1-> ssh qpi@192.168.233.217
-1->
+
+ws -> source
+
+ros2 launch quadruped_description hardware.launch.py
+# ros2 launch quadruped_description joystick.launch.py #now merged wth hardware.launch.py
+ros2 run quadruped_description traj_bezier
+ros2 run ros2_bno055 bno055
+ros2 launch sllidar_ros2 view_sllidar_a1_launch.py
+
+colcon build --packages-select quadruped_description
+
+
+sudo chmod 777 /dev/ttyUSB0V for lidar ****
+
+       odom_x = (odom_x - (dx+dx/3)*cos(theta) + (dy+dy/3)*sin(theta)) ;
+        odom_y = (odom_y + (dx)*sin(theta) + (dy)*cos(theta));
+
+
+For using ros domain with ssh on pc:
+       export ROS_DOMAIN_ID=0
+       sudo ufw disable

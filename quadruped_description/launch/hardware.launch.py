@@ -20,6 +20,10 @@ def generate_launch_description():
         "is_sim",
         default_value="false"
     )
+
+    joy_params = os.path.join(get_package_share_directory('quadruped_description'),'config','joystick.yaml')
+
+    
     is_sim =   LaunchConfiguration("is_sim")
         # Get the share directory of the quadruped_description package
     share_dir = get_package_share_directory('quadruped_description')
@@ -30,6 +34,20 @@ def generate_launch_description():
     # Process the xacro file to get the robot description
     robot_description_config = xacro.process_file(xacro_file)
     robot_urdf = robot_description_config.toxml()
+
+    joy_node = Node(
+            package='joy',
+            executable='joy_node',
+            parameters=[joy_params, {'use_sim_time': is_sim}],
+         )
+
+    teleop_node = Node(
+            package='teleop_twist_joy',
+            executable='teleop_node',
+            name='teleop_node',
+            parameters=[joy_params, {'use_sim_time': is_sim}],
+            #remappings=[('/cmd_vel','/cmd_vel_joy')]
+         )
 
     # Create the robot_state_publisher node with the processed robot description
     robot_state_publisher_node = Node(
@@ -131,7 +149,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         is_sim_arg,
-        robot_state_publisher_node,
+        #robot_state_publisher_node,
         controller_manager,
         # gazebo_server,
         # gazebo_client,
@@ -141,5 +159,7 @@ def generate_launch_description():
         lf_cont_spawner,
         rb_cont_spawner,
         rf_cont_spawner,
-        rviz_node
+        rviz_node,
+        joy_node,
+        teleop_node
     ])

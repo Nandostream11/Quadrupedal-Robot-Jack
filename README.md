@@ -1,57 +1,36 @@
-# Quadruped Robot Simulation and Inverse Kinematics
+# H/ware branch of Quadrupedal Robot
 
-This repository contains two ROS 2 packages:
+The hardware consists of 12 Servo Motors providing each of the 4 leg-tips with 3-Dof acccounting for a total of 12 DoFs Quadrupedal Robot.
+Brain- Raspberry Pi 4.0 B
+Controller- Arduino Mega256
+Servo Driver module
+IMU-BNO055 Sensor(9-axis)
+LIDAR- RP LiDAR A1
 
-1. **quad_description** - URDF and Gazebo setup for a quadruped robot leg.
-2. **ik** - C++ implementation of inverse kinematics using analytical equations.
+Look into rpi_cmds.txt for setup commands/instructions
 
-## Installation
-
-Clone the repository into your ROS 2 workspace and build it:
-
-```sh
-cd ~/ros2_ws/src
-git clone https://github.com/DJIITBH/Quadruped_ROS2.git
-cd ~/ros2_ws
-colcon build --packages-select quad_description ik
+Setup and soyurce the workspace:-
+```bash
+cd <quad_ws>
 source install/setup.bash
 ```
-
-## Usage
-
-### Quad Description
-
-#### Spawn Quadruped Robot Leg in Gazebo
-```sh
-ros2 launch quad_description gazebo.launch.py
-```
-This command launches the Gazebo environment and spawns the quadruped robot leg.
-
-#### Visualize in RViz and Move Joints via GUI
-```sh
-ros2 launch quad_description display.launch.py
-```
-This command opens RViz to visualize the quadruped robot leg and interactively control its joints.
-
-### Inverse Kinematics
-The **ik** package contains the inverse kinematics implementation for the quadruped leg using analytical equations.
-
-### For teleoperating the Robot-Dog hardware wirelessly run the following commands in different terminals after sourcing the workspace:
-```
+1. Launch the hardware interfaces:
+```bash
 ros2 launch quadruped_description hardware.launch.py
+```
+2. Launch the joystick command interface
+```bash
+# ros2 launch quadruped_description joystick.launch.py #now merged wth hardware.launch.py
+```
+3. Run the bezier trajectory follower-controller
+```bash
 ros2 run quadruped_description traj_bezier
-ros2 launch quadruped_description joystick.launch.py
 ```
-
-## Dependencies
-Ensure that you have the required dependencies installed:
-
-```sh
-sudo apt-get install ros-humble-gazebo-ros-pkgs
-sudo apt-get install ros-humble-rviz2
+4. See the BNO055 IMU data:
+```bash
+ros2 run ros2_bno055 bno055
 ```
-## [Quad walking in Gazebo Harmonic](https://youtu.be/8s2_6TzHoGw?si=2RRBJ7TDqguP4eST)
-
-## Contributing
-Feel free to fork this repository and contribute by submitting pull requests.
-
+5. Initialize the LiDAR Pointcloud feed:
+```bash
+ros2 launch sllidar_ros2 view_sllidar_a1_launch.py
+```
